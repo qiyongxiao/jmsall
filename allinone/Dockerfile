@@ -1,6 +1,6 @@
 FROM centos:7
 WORKDIR /opt
-ARG Version=v2.7.0
+ARG Version=v2.7.1
 ENV Version=${Version} \
     LANG=en_US.utf8
 
@@ -113,7 +113,7 @@ ENV SECRET_KEY=kWQdmdCQKjaWlHYpPhkNQDkfaRulM6YnHctsHLlSPs8287o2kW \
     DB_NAME=jumpserver \
     REDIS_HOST=127.0.0.1 \
     REDIS_PORT=6379 \
-    REDIS_PASSWORD= \
+    REDIS_PASSWORD="" \
     CORE_HOST=http://127.0.0.1:8080 \
     LOG_LEVEL=ERROR \
     JUMPSERVER_KEY_DIR=/config/guacamole/data/keys \

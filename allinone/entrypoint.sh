@@ -1,6 +1,4 @@
 #!/bin/bash
-#
-
 if [ $DB_HOST == 127.0.0.1 ]; then
     if [ ! -d "/var/lib/mysql/$DB_NAME" ]; then
         mysqld --initialize-insecure --user=mysql --datadir=/var/lib/mysql
@@ -32,4 +30,4 @@ sh /config/tomcat9/bin/startup.sh
 /usr/sbin/nginx &
 
 echo "Jumpserver ALL $Version"
-tail -f /opt/readme.txt
+cat

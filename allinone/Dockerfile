@@ -1,40 +1,44 @@
-FROM centos:7 as base
+FROM qiqisa/centos:centos7 as base
+RUN set -ex \
+    && rm -rf /etc/yum.repos.d/* \
+    && curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo \
+    && curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo \
+    && yum -y install wget gcc epel-release git yum-utils libpng-devel \
+        libjpeg-devel cairo-devel libjpeg-turbo-devel libtool uuid-devel make \
+        java maven \
+    && wget http://download.jumpserver.org/public/guacamole-server-1.3.0.tar.gz \
+#    && wget https://github.com/apache/guacamole-client/archive/refs/tags/1.3.0.tar.gz \
+    && tar -xf guacamole-server-1.3.0.tar.gz \
+    && cd guacamole-server-1.3.0 \
+    && ./configure --with-init-dir=/etc/init.d \
+    && make -j 10 \
+    && make install
+
+
+FROM qiqisa/centos:centos7
 WORKDIR /opt
 ARG Version=v2.7.3
 ENV Version=${Version} \
     LANG=en_US.utf8
 
 RUN set -ex \
-    && rm -rf /etc/yum.repos.d/* \
-    && curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo \
-    && curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo \
-    && yum -y install wget gcc epel-release git yum-utils libpng-devel libjpeg-devel cairo-devel libjpeg-turbo libtool uuid-devel make\
-    && wget http://download.jumpserver.org/public/guacamole-server-1.2.0.tar.gz \
-    && tar -xf guacamole-server-1.2.0.tar.gz \
-    && cd guacamole-server-1.2.0 \
-    && ./configure --with-init-dir=/etc/init.d \
-    && make \
-    && make install 
-
-RUN set -ex \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "LANG=en_US.utf8" > /etc/locale.conf \
     && echo "net.core.somaxconn = 1024" >> /etc/sysctl.conf \
     && echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf \
-    && yum -y install python36 \
-    && yum -y localinstall --nogpgcheck https://mirrors.aliyun.com/rpmfusion/free/el/rpmfusion-free-release-7.noarch.rpm \
-    && yum install -y java-1.8.0-openjdk \
-    && yum install -y  \
-    && yum install -y ffmpeg freerdp pango libssh2 libtelnet libvncserver libwebsockets pulseaudio-libs openssl libvorbis libwebp \
+    && yum -y --nogpgcheck install python36 java-1.8.0-openjdk ffmpeg \
+        freerdp pango libssh2 libtelnet libvncserver bash-completion \
+        libwebsockets pulseaudio-libs openssl libvorbis libwebp wget \
+        https://mirrors.aliyun.com/rpmfusion/free/el/rpmfusion-free-release-7.noarch.rpm \
     && echo -e "[nginx-stable]\nname=nginx stable repo\nbaseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/\ngpgcheck=1\nenabled=1\ngpgkey=https://nginx.org/keys/nginx_signing.key" > /etc/yum.repos.d/nginx.repo \
     && rpm --import https://nginx.org/keys/nginx_signing.key \
     && yum -y localinstall http://mirrors.ustc.edu.cn/mysql-repo/mysql57-community-release-el7.rpm \
     && yum -y install mysql-community-server redis nginx \
+    && yum -y update \
     && python3.6 -m venv /opt/py3 \
     && echo -e "[easy_install]\nindex_url = https://mirrors.aliyun.com/pypi/simple/" > ~/.pydistutils.cfg \
     && rm -rf /etc/nginx/conf.d/default.conf \
-    && wget -O /etc/nginx/conf.d/jumpserver.conf https://demo.jumpserver.org/download/nginx/conf.d/latest/jumpserver.conf \
-    && yum install -y bash-completion \
+    && curl -o /etc/nginx/conf.d/jumpserver.conf https://demo.jumpserver.org/download/nginx/conf.d/latest/jumpserver.conf \
     && mkdir -p /config/guacamole/lib /config/guacamole/extensions /config/guacamole/data/log/ /config/guacamole/data/record /config/guacamole/data/drive \
     && TOMCAT_VER=`curl -s http://tomcat.apache.org/tomcat-9.0-doc/ | grep 'Version ' | awk '{print $2}' | sed 's/.$//'` \
     && wget https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-9/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz \
@@ -44,15 +48,12 @@ RUN set -ex \
     && rm -rf /config/tomcat9/webapps/* \
     && sed -i 's/Connector port="8080"/Connector port="8081"/g' /config/tomcat9/conf/server.xml \
     && echo "java.util.logging.ConsoleHandler.encoding = UTF-8" >> /config/tomcat9/conf/logging.properties \
-    
-    && cd .. \
     && wget http://download.jumpserver.org/release/${Version}/guacamole-client-${Version}.tar.gz \
     && tar -xf guacamole-client-${Version}.tar.gz \
     && cp guacamole-client-${Version}/guacamole-*.war /config/tomcat9/webapps/ROOT.war \
     && cp guacamole-client-${Version}/guacamole-*.jar /config/guacamole/extensions/ \
     && yum clean all \
-    && rm -rf guacamole-server-1.2.0 guacamole-server-1.2.0.tar.gz guacamole-client-${Version} guacamole-client-${Version}.tar.gz \
-    && rm -rf /var/cache/yum/*
+    && rm -rf guacamole-client-${Version} guacamole-client-${Version}.tar.gz /var/cache/yum/*
 
 RUN set -ex \
     && wget https://github.com/jumpserver/jumpserver/releases/download/${Version}/jumpserver-${Version}.tar.gz \
@@ -71,7 +72,7 @@ RUN set -ex \
     && tar -xf kubectl_aliases.tar.gz -C /opt/kubectl-aliases/ \
     && chown -R root:root /opt/kubectl-aliases/ \
     && chmod 755 /opt/koko/init-kubectl.sh \
-    && wget -O guacamole-${Version}.tar.gz https://github.com/jumpserver/docker-guacamole/archive/master.tar.gz \
+    && curl -o guacamole-${Version}.tar.gz https://github.com/jumpserver/docker-guacamole/archive/master.tar.gz \
     && mkdir /opt/guacamole \
     && tar -xf guacamole-${Version}.tar.gz -C /opt/guacamole --strip-components 1 \
     && wget https://github.com/jumpserver/lina/releases/download/${Version}/lina-${Version}.tar.gz \
@@ -88,17 +89,14 @@ RUN set -ex \
     && wget http://download.jumpserver.org/public/ssh-forward.tar.gz \
     && tar -xf ssh-forward.tar.gz -C /bin/ \
     && chmod 755 /bin/ssh-forward \
-    && cd /opt \
     && chown -R root:root /opt/* \
-    && yum -y remove libwinpr \
+    && yum -y remove libwinpr git wget \
     && yum localinstall -y https://demo.jumpserver.org/download/centos/7/libwinpr-2.0.0-4.rc4.el7_8.x86_64.rpm https://demo.jumpserver.org/download/centos/7/libwinpr-devel-2.0.0-4.rc4.el7_8.x86_64.rpm https://demo.jumpserver.org/download/centos/7/freerdp-libs-2.0.0-4.rc4.el7_8.x86_64.rpm https://demo.jumpserver.org/download/centos/7/freerdp-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
     && yum clean all \
-    && rm -rf /opt/guacamole \
-    && rm -rf /var/cache/yum/* \
-    && rm -rf /opt/*.tar.gz \
-    && rm -rf /var/cache/yum/* \
-    && rm -rf ~/.cache/pip
+    && rm -rf /opt/guacamole /var/cache/yum/* /opt/*.tar.gz /var/cache/yum/* ~/.cache/pip
 
+
+COPY --from=base /usr/local /usr/local
 COPY allinone/readme.txt readme.txt
 COPY allinone/entrypoint.sh .
 RUN chmod +x ./entrypoint.sh

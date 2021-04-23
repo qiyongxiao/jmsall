@@ -58,13 +58,17 @@ RUN set -ex \
 RUN set -ex \
     && wget https://github.com/jumpserver/jumpserver/releases/download/${Version}/jumpserver-${Version}.tar.gz \
     && tar -xf jumpserver-${Version}.tar.gz \
-    && mv jumpserver-${Version} jumpserver \
+#ADD jumpserver-v2.7.3.tar.gz .
+#RUN set -xe \
+    && mv jumpserver-${Version} jumpserver
+#ADD koko-v2.7.3-linux-amd64.tar.gz .
     && wget https://github.com/jumpserver/koko/releases/download/${Version}/koko-${Version}-linux-amd64.tar.gz \
-    && tar -xf koko-${Version}-linux-amd64.tar.gz \
+    && tar xf koko-${Version}-linux-amd64.tar.gz \
+#RUN set -xe \
     && mv koko-${Version}-linux-amd64 koko \
     && mv /opt/koko/kubectl /usr/local/bin/ \
     && wget https://download.jumpserver.org/public/kubectl.tar.gz \
-    && tar -xf kubectl.tar.gz \
+    && tar xf kubectl.tar.gz \
     && chmod 755 kubectl \
     && mv kubectl /usr/local/bin/rawkubectl \
     && wget http://download.jumpserver.org/public/kubectl_aliases.tar.gz \
@@ -72,7 +76,7 @@ RUN set -ex \
     && tar -xf kubectl_aliases.tar.gz -C /opt/kubectl-aliases/ \
     && chown -R root:root /opt/kubectl-aliases/ \
     && chmod 755 /opt/koko/init-kubectl.sh \
-    && curl -o guacamole-${Version}.tar.gz https://github.com/jumpserver/docker-guacamole/archive/master.tar.gz \
+    && wget -O guacamole-${Version}.tar.gz https://github.com/jumpserver/docker-guacamole/archive/master.tar.gz \
     && mkdir /opt/guacamole \
     && tar -xf guacamole-${Version}.tar.gz -C /opt/guacamole --strip-components 1 \
     && wget https://github.com/jumpserver/lina/releases/download/${Version}/lina-${Version}.tar.gz \
@@ -87,7 +91,7 @@ RUN set -ex \
     && cd guacamole \
     && mv /opt/guacamole/guacamole.properties /config/guacamole/ \
     && wget http://download.jumpserver.org/public/ssh-forward.tar.gz \
-    && tar -xf ssh-forward.tar.gz -C /bin/ \
+    && tar xf ssh-forward.tar.gz -C /bin/ \
     && chmod 755 /bin/ssh-forward \
     && chown -R root:root /opt/* \
     && yum -y remove libwinpr git wget \

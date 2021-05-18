@@ -60,7 +60,7 @@ RUN set -ex \
     && tar -xf jumpserver-${Version}.tar.gz \
 #ADD jumpserver-v2.7.3.tar.gz .
 #RUN set -xe \
-    && mv jumpserver-${Version} jumpserver
+    && mv jumpserver-${Version} jumpserver \
 #ADD koko-v2.7.3-linux-amd64.tar.gz .
     && wget https://github.com/jumpserver/koko/releases/download/${Version}/koko-${Version}-linux-amd64.tar.gz \
     && tar xf koko-${Version}-linux-amd64.tar.gz \

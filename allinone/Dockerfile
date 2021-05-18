@@ -26,7 +26,7 @@ RUN set -ex \
     && echo "LANG=en_US.utf8" > /etc/locale.conf \
     && echo "net.core.somaxconn = 1024" >> /etc/sysctl.conf \
     && echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf \
-    && yum -y --nogpgcheck install python36 java-1.8.0-openjdk ffmpeg \
+    && yum -y --nogpgcheck install python3 python3-devel java-1.8.0-openjdk ffmpeg \
         freerdp pango libssh2 libtelnet libvncserver bash-completion \
         libwebsockets pulseaudio-libs openssl libvorbis libwebp wget \
         https://mirrors.aliyun.com/rpmfusion/free/el/rpmfusion-free-release-7.noarch.rpm \

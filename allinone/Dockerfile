@@ -16,7 +16,7 @@ RUN set -ex \
 FROM qiqisa/centos:centos7
 MAINTAINER 1433290059@qq.com
 WORKDIR /opt
-ARG Version=v2.7.3
+ARG Version=v2.7.2
 ENV Version=${Version} \
     LANG=en_US.utf8
 
@@ -56,10 +56,10 @@ RUN set -ex \
 RUN set -ex \
     && wget https://github.com/jumpserver/jumpserver/releases/download/${Version}/jumpserver-${Version}.tar.gz \
     && tar -xf jumpserver-${Version}.tar.gz \
-#ADD jumpserver-v2.7.3.tar.gz .
+#ADD jumpserver-v2.7.2.tar.gz .
 #RUN set -xe \
     && mv jumpserver-${Version} jumpserver \
-#ADD koko-v2.7.3-linux-amd64.tar.gz .
+#ADD koko-v2.7.2-linux-amd64.tar.gz .
     && wget https://github.com/jumpserver/koko/releases/download/${Version}/koko-${Version}-linux-amd64.tar.gz \
     && tar xf koko-${Version}-linux-amd64.tar.gz \
 #RUN set -xe \

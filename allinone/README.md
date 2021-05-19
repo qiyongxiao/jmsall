@@ -1,26 +1,14 @@
 # Dockerfile
 
-Jumpserver all in one Dockerfile
-
-This project is only for Docker image build, this docker image we do not suggest you build in a product environment.
+### Jumpserver整合为一个容器
 
 该项目仅仅是Jumpserver项目的docker镜像生成代码，我们不建议在生产环境下使用该镜像。
-
-The main reasons are:
-
-   - the database is in the docker too, and we suggest you use your own database by docker env.
-   - lack of scalability
-   - NO HA plan
-   - some unknown problems
-
 主要原因是：
-
    - 数据库在docker内，建议通过docker的环境变量去使用外部数据库
    - 几乎丧失的横向扩展能力
-   - 没有HA的解决方案
-   - 未知的一些问题
-
-## How to start
+   - 没有HA的解决方案（官方未解决koko多实例注册注册问题，暂不支持）
+=
+## 如何启动
 
 
 ```bash
@@ -80,5 +68,4 @@ docker run --name jms_all -d \
   -e REDIS_PASSWORD=password \
   --privileged=true \
   jumpserver/jms_all:1.4.8
-
 ```

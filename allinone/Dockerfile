@@ -1,9 +1,7 @@
 FROM qiqisa/centos:centos7 as base
+MAINTAINER 1433290059@qq.com
 RUN set -ex \
-    && rm -rf /etc/yum.repos.d/* \
-    && curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo \
-    && curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo \
-    && yum -y install wget gcc epel-release git yum-utils libpng-devel \
+    && yum -y install wget gcc libpng-devel \
         libjpeg-devel cairo-devel libjpeg-turbo-devel libtool uuid-devel make \
         java maven \
     && wget http://download.jumpserver.org/public/guacamole-server-1.3.0.tar.gz \
@@ -16,6 +14,7 @@ RUN set -ex \
 
 
 FROM qiqisa/centos:centos7
+MAINTAINER 1433290059@qq.com
 WORKDIR /opt
 ARG Version=v2.7.3
 ENV Version=${Version} \
@@ -52,8 +51,7 @@ RUN set -ex \
     && tar -xf guacamole-client-${Version}.tar.gz \
     && cp guacamole-client-${Version}/guacamole-*.war /config/tomcat9/webapps/ROOT.war \
     && cp guacamole-client-${Version}/guacamole-*.jar /config/guacamole/extensions/ \
-    && yum clean all \
-    && rm -rf guacamole-client-${Version} guacamole-client-${Version}.tar.gz /var/cache/yum/*
+    && rm -rf guacamole-client-${Version} guacamole-client-${Version}.tar.gz
 
 RUN set -ex \
     && wget https://github.com/jumpserver/jumpserver/releases/download/${Version}/jumpserver-${Version}.tar.gz \
@@ -103,6 +101,8 @@ RUN set -ex \
 COPY --from=base /usr/local /usr/local
 COPY allinone/readme.txt readme.txt
 COPY allinone/entrypoint.sh .
+COPY --from=base /etc/init.d/guacd /etc/init.d/
+COPY --from=base /usr/lib64/libossp* /usr/lib64/
 RUN chmod +x ./entrypoint.sh
 
 VOLUME /var/lib/mysql

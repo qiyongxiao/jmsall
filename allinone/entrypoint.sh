@@ -3,8 +3,12 @@ if [ $DB_HOST == 127.0.0.1 ]; then
     if [ ! -d "/var/lib/mysql/$DB_NAME" ]; then
         mysqld --initialize-insecure --user=mysql --datadir=/var/lib/mysql
         mysqld --daemonize --user=mysql
-        sleep 5s
-        mysql -uroot -e "create database jumpserver default charset 'utf8' collate 'utf8_bin'; grant all on jumpserver.* to 'jumpserver'@'127.0.0.1' identified by '$DB_PASSWORD'; flush privileges;"
+        if [[ ! -z $(pidof mysqld) ]];then
+          sleep 5s
+          mysql -uroot -e "create database jumpserver default charset 'utf8' collate 'utf8_bin'; grant all on jumpserver.* to 'jumpserver'@'127.0.0.1' identified by '$DB_PASSWORD'; flush privileges;"
+        else
+          echo "Mysql数据库未启动"
+        fi
     else
         mysqld --daemonize --user=mysql
     fi
@@ -30,4 +34,4 @@ sh /config/tomcat9/bin/startup.sh
 /usr/sbin/nginx &
 
 echo "Jumpserver ALL $Version"
-cat
+tail -f /opt/readme.txt

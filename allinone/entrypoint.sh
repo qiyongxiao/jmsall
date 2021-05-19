@@ -34,4 +34,4 @@ sh /config/tomcat9/bin/startup.sh
 /usr/sbin/nginx &
 
 echo "Jumpserver ALL $Version"
-tail -f /opt/readme.txt
+tail -f /var/log/nginx/access.log

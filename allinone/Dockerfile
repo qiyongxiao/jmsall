@@ -99,7 +99,6 @@ RUN set -ex \
 
 
 COPY --from=base /usr/local /usr/local
-COPY allinone/readme.txt readme.txt
 COPY allinone/entrypoint.sh .
 COPY --from=base /etc/init.d/guacd /etc/init.d/
 COPY --from=base /usr/lib64/libossp* /usr/lib64/

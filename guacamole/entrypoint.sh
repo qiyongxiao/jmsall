@@ -26,7 +26,7 @@ if [ ! $JUMPSERVER_CLEAR_DRIVE_SCHEDULE ]; then
     export JUMPSERVER_CLEAR_DRIVE_SCHEDULE=24
 fi
 
-rm -rf /config/tomcat9/logs/*
+rm -rf /config/tomcat10/logs/*
 
 sleep 5s
 while [ "$(curl -I -m 10 -L -k -o /dev/null -s -w %{http_code} ${JUMPSERVER_SERVER}/api/health/)" != "200" ]
@@ -36,7 +36,7 @@ do
 done
 
 /etc/init.d/guacd start
-cd /config/tomcat9/bin && ./startup.sh
+cd /config/tomcat10/bin && ./startup.sh
 
 echo "Guacamole version $Version, more see https://www.jumpserver.org"
 echo "Quit the server with CONTROL-C."

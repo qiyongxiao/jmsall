@@ -18,12 +18,12 @@ RUN set -ex \
     && TOMCAT_VER=`curl -s http://tomcat.apache.org/tomcat-9.0-doc/ | grep 'Version ' | awk '{print $2}' | sed 's/.$//'` \
     && wget http://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-9/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz \
     && tar -xf apache-tomcat-${TOMCAT_VER}.tar.gz \
-    && mv apache-tomcat-${TOMCAT_VER} tomcat9 \
+    && mv apache-tomcat-${TOMCAT_VER} tomcat10 \
     && rm -rf apache-tomcat-${TOMCAT_VER}.tar.gz \
-    && rm -rf tomcat9/webapps/* \
+    && rm -rf tomcat10/webapps/* \
     && sed -i 's/# export/export/g' /root/.bashrc \
     && sed -i 's/# alias l/alias l/g' /root/.bashrc \
-    && echo "java.util.logging.ConsoleHandler.encoding = UTF-8" >> /config/tomcat9/conf/logging.properties \
+    && echo "java.util.logging.ConsoleHandler.encoding = UTF-8" >> /config/tomcat10/conf/logging.properties \
     && wget -O docker-guacamole-${Version}.tar.gz https://github.com/jumpserver/docker-guacamole/archive/master.tar.gz \
     && mkdir /config/docker-guacamole \
     && tar -xf docker-guacamole-${Version}.tar.gz -C /config/docker-guacamole --strip-components 1 \
@@ -43,7 +43,7 @@ RUN set -ex \
     && chmod 755 /bin/ssh-forward \
     && wget http://download.jumpserver.org/release/${Version}/guacamole-client-${Version}.tar.gz \
     && tar -xf guacamole-client-${Version}.tar.gz \
-    && cp guacamole-client-${Version}/guacamole-*.war /config/tomcat9/webapps/ROOT.war \
+    && cp guacamole-client-${Version}/guacamole-*.war /config/tomcat10/webapps/ROOT.war \
     && cp guacamole-client-${Version}/guacamole-*.jar /config/guacamole/extensions/ \
     && cd /config \
     && mv /config/docker-guacamole/guacamole.properties /config/guacamole/ \

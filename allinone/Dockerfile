@@ -13,7 +13,7 @@ RUN set -ex \
 FROM qiqisa/centos:centos7
 MAINTAINER 1433290059@qq.com
 WORKDIR /opt
-ARG Version=v2.8.4
+ARG Version=v2.8.0
 ENV Version=${Version} \
     LANG=en_US.utf8
 
@@ -30,7 +30,6 @@ RUN set -ex \
     && rpm --import https://nginx.org/keys/nginx_signing.key \
     && yum -y localinstall http://mirrors.ustc.edu.cn/mysql-repo/mysql57-community-release-el7.rpm \
     && yum -y install mysql-community-server redis nginx \
-    && yum -y update \
     && python3.6 -m venv /opt/py3 \
     && echo -e "[easy_install]\nindex_url = https://mirrors.aliyun.com/pypi/simple/" > ~/.pydistutils.cfg \
     && rm -rf /etc/nginx/conf.d/default.conf \
@@ -48,18 +47,12 @@ RUN set -ex \
     && tar -xf guacamole-client-${Version}.tar.gz \
     && cp guacamole-client-${Version}/guacamole-*.war /config/tomcat10/webapps/ROOT.war \
     && cp guacamole-client-${Version}/guacamole-*.jar /config/guacamole/extensions/ \
-    && rm -rf guacamole-client-${Version} guacamole-client-${Version}.tar.gz
-
-RUN set -ex \
+    && rm -rf guacamole-client-${Version} guacamole-client-${Version}.tar.gz \
     && wget https://github.com/jumpserver/jumpserver/releases/download/${Version}/jumpserver-${Version}.tar.gz \
     && tar -xf jumpserver-${Version}.tar.gz \
-#ADD jumpserver-v2.8.4.tar.gz .
-#RUN set -xe \
     && mv jumpserver-${Version} jumpserver \
-#ADD koko-v2.8.4-linux-amd64.tar.gz .
     && wget https://github.com/jumpserver/koko/releases/download/${Version}/koko-${Version}-linux-amd64.tar.gz \
     && tar xf koko-${Version}-linux-amd64.tar.gz \
-#RUN set -xe \
     && mv koko-${Version}-linux-amd64 koko \
     && mv /opt/koko/kubectl /usr/local/bin/ \
     && wget https://download.jumpserver.org/public/kubectl.tar.gz \
@@ -82,6 +75,7 @@ RUN set -ex \
     && mv luna-${Version} luna \
     && yum -y install $(cat /opt/jumpserver/requirements/rpm_requirements.txt) \
     && source /opt/py3/bin/activate \
+    && pip3 install pip -U \
     && pip3 install -r /opt/jumpserver/requirements/requirements.txt \
     && cd guacamole \
     && mv /opt/guacamole/guacamole.properties /config/guacamole/ \
@@ -94,15 +88,19 @@ RUN set -ex \
 		https://demo.jumpserver.org/download/centos/7/libwinpr-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
 		https://demo.jumpserver.org/download/centos/7/freerdp-libs-2.0.0-4.rc4.el7_8.x86_64.rpm \
 		https://demo.jumpserver.org/download/centos/7/freerdp-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
+	&& yum -y remove gcc make krb5-devel libtiff-devel \
+    		libjpeg-devel libzip-devel freetype-devel lcms2-devel \
+    		libwebp-devel tcl-devel tk-devel openldap-devel mariadb-devel \
+    		mysql-community-devel libffi-devel \
+    && yum -y autoremove \
     && yum clean all \
     && rm -rf /opt/guacamole /var/cache/yum/* /opt/*.tar.gz /var/cache/yum/* ~/.cache/pip
-
 COPY --from=base /usr/local /usr/local
 COPY allinone/entrypoint.sh .
 COPY --from=base /etc/init.d/guacd /etc/init.d/
 COPY --from=base /usr/lib64/libossp* /usr/lib64/
-RUN chmod +x ./entrypoint.sh
-
+RUN set -xe \
+	&& chmod +x ./entrypoint.sh
 VOLUME /var/lib/mysql
 VOLUME /opt/jumpserver/data
 VOLUME /opt/koko/data
@@ -129,7 +127,9 @@ ENV SECRET_KEY=kWQdmdCQKjaWlHYpPhkNQDkfaRulM6YnHctsHLlSPs8287o2kW \
     JUMPSERVER_DRIVE_PATH=/config/guacamole/data/drive \
     JUMPSERVER_CLEAR_DRIVE_SESSION=true \
     JUMPSERVER_CLEAR_DRIVE_SCHEDULE=24 \
-    JUMPSERVER_SERVER=http://127.0.0.1:8080
+    JUMPSERVER_SERVER=http://127.0.0.1:8080 \
+    LANG=en_US.utf8
 
 EXPOSE 80 2222
 ENTRYPOINT ["./entrypoint.sh"]
+

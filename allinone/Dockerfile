@@ -1,17 +1,14 @@
 FROM qiqisa/centos:centos7 as base
 MAINTAINER 1433290059@qq.com
 RUN set -ex \
-    && yum -y install wget gcc libpng-devel \
+    && yum -y install gcc libpng-devel \
         libjpeg-devel cairo-devel libjpeg-turbo-devel libtool uuid-devel make \
-        java maven \
-    && wget http://download.jumpserver.org/public/guacamole-server-1.3.0.tar.gz \
-#    && wget https://github.com/apache/guacamole-client/archive/refs/tags/1.3.0.tar.gz \
+    && curl -sL -o guacamole-server-1.3.0.tar.gz http://download.jumpserver.org/public/guacamole-server-1.3.0.tar.gz \
     && tar -xf guacamole-server-1.3.0.tar.gz \
     && cd guacamole-server-1.3.0 \
     && ./configure --with-init-dir=/etc/init.d \
     && make -j 10 \
     && make install
-
 
 FROM qiqisa/centos:centos7
 MAINTAINER 1433290059@qq.com
@@ -25,8 +22,8 @@ RUN set -ex \
     && echo "LANG=en_US.utf8" > /etc/locale.conf \
     && echo "net.core.somaxconn = 1024" >> /etc/sysctl.conf \
     && echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf \
-    && yum -y --nogpgcheck install python3 python3-devel java-1.8.0-openjdk ffmpeg \
-        freerdp pango libssh2 libtelnet libvncserver bash-completion \
+    && yum -y --nogpgcheck install python3 python3-devel java ffmpeg \
+        freerdp pango libssh2 libtelnet libvncserver \
         libwebsockets pulseaudio-libs openssl libvorbis libwebp wget \
         https://mirrors.aliyun.com/rpmfusion/free/el/rpmfusion-free-release-7.noarch.rpm \
     && echo -e "[nginx-stable]\nname=nginx stable repo\nbaseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/\ngpgcheck=1\nenabled=1\ngpgkey=https://nginx.org/keys/nginx_signing.key" > /etc/yum.repos.d/nginx.repo \
@@ -39,17 +36,17 @@ RUN set -ex \
     && rm -rf /etc/nginx/conf.d/default.conf \
     && curl -o /etc/nginx/conf.d/jumpserver.conf https://demo.jumpserver.org/download/nginx/conf.d/latest/jumpserver.conf \
     && mkdir -p /config/guacamole/lib /config/guacamole/extensions /config/guacamole/data/log/ /config/guacamole/data/record /config/guacamole/data/drive \
-    && TOMCAT_VER=`curl -s http://tomcat.apache.org/tomcat-9.0-doc/ | grep 'Version ' | awk '{print $2}' | sed 's/.$//'` \
-    && wget https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-9/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz \
+    && TOMCAT_VER=`curl -s http://tomcat.apache.org/tomcat-10.0-doc/ | grep 'Version ' | awk '{print $2}' | sed 's/.$//'` \
+    && wget https://mirrors.tuna.tsinghua.edu.cn/apache/tomcat/tomcat-10/v${TOMCAT_VER}/bin/apache-tomcat-${TOMCAT_VER}.tar.gz \
     && tar -xf apache-tomcat-${TOMCAT_VER}.tar.gz -C /config \
     && rm -rf apache-tomcat-${TOMCAT_VER}.tar.gz \
-    && mv /config/apache-tomcat-${TOMCAT_VER} /config/tomcat9 \
-    && rm -rf /config/tomcat9/webapps/* \
-    && sed -i 's/Connector port="8080"/Connector port="8081"/g' /config/tomcat9/conf/server.xml \
-    && echo "java.util.logging.ConsoleHandler.encoding = UTF-8" >> /config/tomcat9/conf/logging.properties \
+    && mv /config/apache-tomcat-${TOMCAT_VER} /config/tomcat10 \
+    && rm -rf /config/tomcat10/webapps/* \
+    && sed -i 's/Connector port="8080"/Connector port="8081"/g' /config/tomcat10/conf/server.xml \
+    && echo "java.util.logging.ConsoleHandler.encoding = UTF-8" >> /config/tomcat10/conf/logging.properties \
     && wget http://download.jumpserver.org/release/${Version}/guacamole-client-${Version}.tar.gz \
     && tar -xf guacamole-client-${Version}.tar.gz \
-    && cp guacamole-client-${Version}/guacamole-*.war /config/tomcat9/webapps/ROOT.war \
+    && cp guacamole-client-${Version}/guacamole-*.war /config/tomcat10/webapps/ROOT.war \
     && cp guacamole-client-${Version}/guacamole-*.jar /config/guacamole/extensions/ \
     && rm -rf guacamole-client-${Version} guacamole-client-${Version}.tar.gz
 
@@ -85,18 +82,20 @@ RUN set -ex \
     && mv luna-${Version} luna \
     && yum -y install $(cat /opt/jumpserver/requirements/rpm_requirements.txt) \
     && source /opt/py3/bin/activate \
-    && pip install -r /opt/jumpserver/requirements/requirements.txt \
+    && pip3 install -r /opt/jumpserver/requirements/requirements.txt \
     && cd guacamole \
     && mv /opt/guacamole/guacamole.properties /config/guacamole/ \
     && wget http://download.jumpserver.org/public/ssh-forward.tar.gz \
     && tar xf ssh-forward.tar.gz -C /bin/ \
     && chmod 755 /bin/ssh-forward \
     && chown -R root:root /opt/* \
-    && yum -y remove libwinpr git wget \
-    && yum localinstall -y https://demo.jumpserver.org/download/centos/7/libwinpr-2.0.0-4.rc4.el7_8.x86_64.rpm https://demo.jumpserver.org/download/centos/7/libwinpr-devel-2.0.0-4.rc4.el7_8.x86_64.rpm https://demo.jumpserver.org/download/centos/7/freerdp-libs-2.0.0-4.rc4.el7_8.x86_64.rpm https://demo.jumpserver.org/download/centos/7/freerdp-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
+    && yum localinstall -y https://demo.jumpserver.org/download/centos/7/libwinpr-2.0.0-4.rc4.el7_8.x86_64.rpm \
+		https://demo.jumpserver.org/download/centos/7/libwinpr-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
+		https://demo.jumpserver.org/download/centos/7/freerdp-libs-2.0.0-4.rc4.el7_8.x86_64.rpm \
+		https://demo.jumpserver.org/download/centos/7/freerdp-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
+    && yum -y remove libwinpr git wget python3-devel\
     && yum clean all \
     && rm -rf /opt/guacamole /var/cache/yum/* /opt/*.tar.gz /var/cache/yum/* ~/.cache/pip
-
 
 COPY --from=base /usr/local /usr/local
 COPY allinone/entrypoint.sh .

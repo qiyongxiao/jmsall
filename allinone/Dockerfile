@@ -88,7 +88,7 @@ RUN set -ex \
 		https://demo.jumpserver.org/download/centos/7/libwinpr-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
 		https://demo.jumpserver.org/download/centos/7/freerdp-libs-2.0.0-4.rc4.el7_8.x86_64.rpm \
 		https://demo.jumpserver.org/download/centos/7/freerdp-devel-2.0.0-4.rc4.el7_8.x86_64.rpm \
-	&& yum -y remove gcc make krb5-devel libtiff-devel \
+	&& yum -y remove gcc krb5-devel libtiff-devel \
     		libjpeg-devel libzip-devel freetype-devel lcms2-devel \
     		libwebp-devel tcl-devel tk-devel openldap-devel mariadb-devel \
     		mysql-community-devel libffi-devel \

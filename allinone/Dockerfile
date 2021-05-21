@@ -13,7 +13,7 @@ RUN set -ex \
 FROM qiqisa/centos:centos7
 MAINTAINER 1433290059@qq.com
 WORKDIR /opt
-ARG Version=v2.8.1
+ARG Version=v2.8.2
 ENV Version=${Version} \
     LANG=en_US.utf8
 
@@ -28,7 +28,7 @@ RUN set -ex \
         https://mirrors.aliyun.com/rpmfusion/free/el/rpmfusion-free-release-7.noarch.rpm \
     && echo -e "[nginx-stable]\nname=nginx stable repo\nbaseurl=http://nginx.org/packages/centos/\$releasever/\$basearch/\ngpgcheck=1\nenabled=1\ngpgkey=https://nginx.org/keys/nginx_signing.key" > /etc/yum.repos.d/nginx.repo \
     && rpm --import https://nginx.org/keys/nginx_signing.key \
-    && yum -y localinstall http://mirrors.ustc.edu.cn/mysql-repo/mysql57-community-release-el7.rpm \
+    && yum -y --nogpgcheck localinstall https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm \
     && yum -y install mysql-community-server redis nginx \
     && python3.6 -m venv /opt/py3 \
     && echo -e "[easy_install]\nindex_url = https://mirrors.aliyun.com/pypi/simple/" > ~/.pydistutils.cfg \
@@ -67,7 +67,7 @@ RUN set -ex \
     && wget -O guacamole-${Version}.tar.gz https://github.com/jumpserver/docker-guacamole/archive/master.tar.gz \
     && mkdir /opt/guacamole \
     && tar -xf guacamole-${Version}.tar.gz -C /opt/guacamole --strip-components 1 \
-    && wget https://github.com/jumpserver/lina/releases/download/${Version}/lina-${Version}.tar.gz \
+    && wget https://github.com /jumpserver/lina/releases/download/${Version}/lina-${Version}.tar.gz \
     && tar -xf lina-${Version}.tar.gz \
     && mv lina-${Version} lina \
     && wget https://github.com/jumpserver/luna/releases/download/${Version}/luna-${Version}.tar.gz \

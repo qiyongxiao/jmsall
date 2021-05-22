@@ -13,7 +13,7 @@ RUN set -ex \
 FROM qiqisa/centos:centos7
 MAINTAINER 1433290059@qq.com
 WORKDIR /opt
-ARG Version=v2.8.2
+ARG Version=v2.9.0
 ENV Version=${Version} \
 	LANG=en_US.utf8
 

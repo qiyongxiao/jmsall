@@ -8,9 +8,9 @@ if [ "${DB_HOST}" == "127.0.0.1" ]; then
 		mysqld --daemonize --user=mysql
 		if [[ ! -z $(pidof mysqld) ]]; then
 			sleep 2
-			mysql -uroot -e "create database $DB_NAME default charset 'utf8' collate 'utf8_bin';"
-			mysql -uroot -e "create user $DB_USER identified with mysql_native_password by '${DB_PASSWORD}';"
-			mysql -uroot -e "grant all privileges on ${DB_NAME}.* to '$DB_USER'@'127.0.0.1'; flush privileges;"
+			mysql -uroot -e "create database ${DB_NAME} default charset 'utf8' collate 'utf8_bin';"
+			mysql -uroot -e "create user '${DB_USER}'@'%' identified with mysql_native_password by '${DB_PASSWORD}';"
+			mysql -uroot -e "grant all privileges on ${DB_NAME}.* to '${DB_USER}'@'%'; flush privileges;"
 		else
 			echo "Mysql数据库未启动"
 			sleep 5
@@ -19,7 +19,7 @@ if [ "${DB_HOST}" == "127.0.0.1" ]; then
 		chown -R mysql:mysql "/var/lib/mysql/${DB_NAME}"
 		chmod -R 0775 "/var/log/mysql*"
 		mysqld --daemonize --user=mysql
-		mysql -uroot -e "set foreign_key_checks = 0; truncate table jumpserver.terminal; set foreign_key_checks = 1;"
+		mysql -uroot -e "set foreign_key_checks = 0; truncate table '${DB_NAME}'.terminal; set foreign_key_checks = 1;"
 	fi
 fi
 

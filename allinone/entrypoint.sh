@@ -21,6 +21,8 @@ if [ "${DB_HOST}" == "127.0.0.1" ]; then
 		mysqld --daemonize --user=mysql
 		mysql -uroot -e "set foreign_key_checks = 0; truncate table '${DB_NAME}'.terminal; set foreign_key_checks = 1;"
 	fi
+else
+	mysql --user="${DB_USER}" --password="${DB_PASSWORD}" --host=${DB_HOST} --port=${DB_PORT} -e "set foreign_key_checks = 0; truncate table '${DB_NAME}'.terminal; set foreign_key_checks = 1;"
 fi
 
 if [ "$REDIS_HOST" == "127.0.0.1" ]; then
